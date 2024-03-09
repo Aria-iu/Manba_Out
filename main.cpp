@@ -100,18 +100,55 @@
 #include "Goods.h"
 #include "Robot.h"
 
+
+#include <algorithm>
+
+
 Map map;
 Robot robots[NUM_ROBOT];
 vector<Goods> goods_list;
 
 Goods findOptimalGoods(int robot_num) {
-
+    int n = goods_list.size();
 };
 
+//全局初始化
+void initAll();
+
+//计算机器人动作
+void generateRobotAction () {
+
+}
+
+//执行机器人动作，打印到标准输出
+void executeRobotAction() {
+
+}
+
+
+//计算轮船动作
+void generateBoatAction() {
+
+}
+
+
+//执行轮船动作，打印到标准输出
+void executeBoatAction() {
+
+}
+
+void readFrame() {
+
+}
+
 int main() {
-    map.initMap();
-    map.floodFill();
-    map.testPrintMap();
-    
+    initAll();
+    for(int frame = 0;frame < MAX_FRAME; ++frame) {
+        readFrame();
+        generateRobotAction();
+        generateBoatAction();
+        executeRobotAction();
+        executeBoatAction();
+    }
     return 0;
 }
