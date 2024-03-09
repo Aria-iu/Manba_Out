@@ -14,6 +14,7 @@ public:
     pos p;
     Goods goods;
     ROBOT_STATUS status;
+    
     int b_id;
     /* method */
     Robot() {}
@@ -22,6 +23,6 @@ public:
         p.y = starty;
     }
     bool can_run();
-    Robot_status get_status();
+    ROBOT_STATUS get_status();
     int get_berth_num();
 };

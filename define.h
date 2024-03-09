@@ -21,11 +21,6 @@ enum Get_Or_Not{
     NOT,
 };
 
-enum Robot_status{
-    STOP,
-    RUN,
-    DUMMY,
-};
 
 struct Robt_pos {
     int x, y;

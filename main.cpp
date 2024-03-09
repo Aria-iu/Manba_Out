@@ -133,17 +133,7 @@ void initMap() {
 
 //全局初始化
 void initAll() {
-    //读取地图 初始化:机器人 像素
-    string line;
-    for(int i = 0;i < SIZE;++i) {
-        getline(std::cin, line);
-        for(int j = 0;j < SIZE;++j) {
-            pixels[i][j];
-        }
-    }
-    //读取泊位 初始化:泊位
-
-    //读取船   初始化:船
+    
 }
 
 //计算机器人动作
@@ -185,11 +175,52 @@ void readFrame() {
 
     for(int i = 0; i < NUM_ROBOT; i ++){
         int sts;
-        scanf("%d%d%d%d", &robots[i].is_handle_goods, &robots[i].p.x, &robots[i].p.y, &sts);
+        int handle;
+        Robot::ROBOT_STATUS last_sts;
+        last_sts = robots[i].status;
+        scanf("%d%d%d%d", &handle, &robots[i].p.x, &robots[i].p.y, &sts);
         if (sts == 0){
-            robots[i].status = Robot_status::DUMMY;
+            robots[i].status = Robot::ROBOT_STATUS::DUMMY;
         }else{
-            robots[i].status = Robot_status::RUN;
+            if(handle==0){
+                switch (last_sts)
+                {
+                case Robot::ROBOT_STATUS::INIT:
+                    robots[i].status = Robot::ROBOT_STATUS::HUNGRY;
+                    break;
+                case Robot::ROBOT_STATUS::HUNGRY:
+                    robots[i].status = Robot::ROBOT_STATUS::GO_GET;
+                    break;
+                case Robot::ROBOT_STATUS::GO_GET:
+                    break;
+                case Robot::ROBOT_STATUS::GO_SENT:
+                    robots[i].status = Robot::ROBOT_STATUS::HUNGRY;
+                    break;
+                case Robot::ROBOT_STATUS::DUMMY:
+                    robots[i].status = Robot::ROBOT_STATUS::INIT;
+                    break;
+                default:
+                    break;
+                }
+            }else{
+                switch (last_sts)
+                {
+                case Robot::ROBOT_STATUS::HUNGRY:
+                    robots[i].status = Robot::ROBOT_STATUS::GO_SENT;
+                    break;
+                case Robot::ROBOT_STATUS::GO_GET:
+                    robots[i].status = Robot::ROBOT_STATUS::GO_SENT;
+                    break;
+                case Robot::ROBOT_STATUS::GO_SENT:
+                    robots[i].status = Robot::ROBOT_STATUS::GO_SENT;
+                    break;
+                case Robot::ROBOT_STATUS::DUMMY:
+                    robots[i].status = Robot::ROBOT_STATUS::INIT;
+                    break;
+                default:
+                    break;
+                }
+            }
         }
     }
 
