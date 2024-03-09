@@ -14,7 +14,7 @@
 //UP    Y增大方向
 //DOWN  Y减小方向
 
-enum DIRECTION{RIGHT,LEFT, UP, DOWN, NULL_DIRECTION};
+enum DIRECTION:unsigned char{RIGHT,LEFT, UP, DOWN, NULL_DIRECTION};
 
 enum Get_Or_Not{
     GET,
@@ -40,8 +40,9 @@ struct pos {
 
 struct Pixel {
     char ch;
-    unsigned char direction[NUM_BERTH];
-    short dist[NUM_BERTH] = {888};
+    unsigned char direction;
+    short dist = {888};
+    unsigned char color = NULL_COLOR;
 };
 
 struct Goods {

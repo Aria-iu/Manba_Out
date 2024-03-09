@@ -97,8 +97,6 @@
 
 #include "define.h"
 #include "Robot.h"
-
-
 #include <iostream>
 #include <vector>
 #include <stack>
@@ -116,7 +114,7 @@ Pixel pixels[SIZE][SIZE];
 Berth berths[NUM_BERTH];
 Robot robots[NUM_ROBOT];
 vector<Goods> goods_list;
-vector<Boat> boats;
+Boat boats[NUM_BOAT];
 
 void floodFill();
 
@@ -128,8 +126,6 @@ Goods findOptimalGoods(int robot_num) {
 void initMap() {
 
 }
-
-
 
 //全局初始化
 void initAll() {
@@ -213,6 +209,72 @@ void executeRobotAction() {
     }
 }
 
+
+unsigned char avoid(unsigned char directon,pos p){
+    int x = p.x;
+    int y = p.y;
+    Pixel t = pixels[x][y];
+    char  other[2];
+    switch (directon)
+    {
+    case DIRECTION::RIGHT:
+        /* code */
+        other[0] = pixels[x-1][y].ch;
+        other[1] = pixels[x+1][y].ch;
+        if(other[0]=='#'||other[0]=='*'){
+            if(other[1]=='#'||other[1]=='*'){
+                return DIRECTION::LEFT;
+            }else{
+                return DIRECTION::DOWN;
+            }
+        }else{
+            return DIRECTION::UP;
+        }
+    case DIRECTION::LEFT:
+        other[0] = pixels[x-1][y].ch;
+        other[1] = pixels[x+1][y].ch;
+        if(other[0]=='#'||other[0]=='*'){
+            if(other[1]=='#'||other[1]=='*'){
+                return DIRECTION::RIGHT;
+            }else{
+                return DIRECTION::DOWN;
+            }
+        }else{
+            return DIRECTION::UP;
+        }
+        break;
+    case DIRECTION::UP:
+        other[0] = pixels[x][y-1].ch;
+        other[1] = pixels[x][y+1].ch;
+        if(other[0]=='#'||other[0]=='*'){
+            if(other[1]=='#'||other[1]=='*'){
+                return DIRECTION::DOWN;
+            }else{
+                return DIRECTION::RIGHT;
+            }
+        }else{
+            return DIRECTION::LEFT;
+        }
+        break;
+    case DIRECTION::DOWN:
+        other[0] = pixels[x][y-1].ch;
+        other[1] = pixels[x][y+1].ch;
+        if(other[0]=='#'||other[0]=='*'){
+            if(other[1]=='#'||other[1]=='*'){
+                return UP;
+            }else{
+                return DIRECTION::RIGHT;
+            }
+        }else{
+            return DIRECTION::LEFT;
+        }
+        break;
+    default:
+        return DIRECTION::NULL_DIRECTION;
+        break;
+    }
+
+}
 
 //计算轮船动作
 void generateBoatAction() {}
