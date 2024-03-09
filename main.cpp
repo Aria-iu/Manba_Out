@@ -96,19 +96,30 @@
 //}
 
 #include "define.h"
-#include "Map.h"
 #include "Goods.h"
 #include "Robot.h"
 
 
-#include <algorithm>
 #include <iostream>
+#include <vector>
+#include <stack>
+#include <string>
+#include <strstream>
+#include <sstream>
+#include <fstream>
+#include <algorithm>
+#include <limits>
+#include <algorithm>
 
+using namespace std;
 
-Map map;
-Robot robots[NUM_ROBOT];
+Pixel pixels[SIZE][SIZE];
 Berth berths[NUM_BERTH];
+Robot robots[NUM_ROBOT];
 vector<Goods> goods_list;
+
+
+void floodFill();
 
 Goods findOptimalGoods(int robot_num) {
     int n = goods_list.size();
@@ -138,7 +149,7 @@ void initAll() {
     for(int i = 0;i < SIZE;++i) {
         getline(std::cin, line);
         for(int j = 0;j < SIZE;++j) {
-
+            pixels[i][j];
         }
     }
     //读取泊位 初始化:泊位
@@ -182,4 +193,78 @@ int main() {
         executeBoatAction();
     }
     return 0;
+}
+
+
+void floodFill() {
+    int x, y, up, down, left, right;
+    pos p;
+    bool colored[SIZE][SIZE][NUM_BERTH];
+    std::fill(&colored[0][0][0], &colored[0][0][0] + SIZE * SIZE * NUM_BERTH, false);
+
+    for(int i = 0;i < NUM_BERTH;++i) {
+        stack<pos> stackA, stackB; //A栈 B栈
+        stack<pos> * front = &stackA;
+        stack<pos> * after = &stackB;
+        int b_x = berths[i].x, b_y = berths[i].y;
+        for(int j = 0;j < 4;++j) {
+            for(int k = 0;k < 4;++k) {
+                int m = b_x+j, n = b_y+k;
+                pixels[m][n].dist[i] = 0;
+                colored[m][n][i] = true;
+                front->push(pos{m,  n});
+            }
+        }
+        while(true) {
+            while(!front->empty()) {
+                p = front->top();front->pop();
+                x = p.x, y = p.y;
+                Pixel & center = pixels[x][y];
+                left = x - 1, right = x + 1, up = y + 1, down = y - 1;
+                Pixel * pixel;
+                if(left >= 0) {
+                    pixel = &pixels[left][y];
+                    if(!colored[left][y][i] && pixel->ch == '.') {
+                        colored[left][y][i] = true;
+                        pixel->direction[i] = RIGHT;
+                        pixel->dist[i] = center.dist[i] + 1;
+                        after->push(pos{left, y});
+                    }
+                }
+                if(right < SIZE) {
+                    pixel = &pixels[right][y];
+                    if(!colored[right][y][i] && pixel->ch == '.') {
+                        colored[right][y][i] = true;
+                        pixel->direction[i] = LEFT;
+                        pixel->dist[i] = center.dist[i] + 1;
+                        after->push(pos{right, y});
+                    }
+                }
+                if(up < SIZE) {
+                    pixel = &pixels[x][up];
+                    if(!colored[x][up][i] && pixel->ch == '.') {
+                        colored[x][up][i] = true;
+                        pixel->direction[i] = DOWN;
+                        pixel->dist[i] = center.dist[i] + 1;
+                        after->push(pos{x, up});
+                    }
+                }
+                if(down >= 0) {
+                    pixel = &pixels[x][down];
+                    if(!colored[x][down][i] && pixel->ch == '.') {
+                        colored[x][down][i] = true;
+                        pixel->direction[i] = UP;
+                        pixel->dist[i] = center.dist[i] + 1;
+                        after->push(pos{x, down});
+                    }
+                }
+            }
+            if(after->empty()) {
+                break;
+            }
+            auto temp = front;
+            front = after;
+            after = temp;
+        }
+    }
 }
