@@ -5,6 +5,7 @@
 #define SIZE 200
 #define NUM_ROBOT 10
 #define NUM_BERTH 1
+#define UNREACHABLE 888
 
 
 //LEFT  X减小方向
@@ -13,6 +14,17 @@
 //DOWN  Y减小方向
 
 enum DIRECTION{LEFT, RIGHT, UP, DOWN, NULL_DIRECTION};
+
+enum Get_Or_Not{
+    GET,
+    NOT,
+};
+
+enum Robot_status{
+    STOP,
+    RUN,
+    DUMMY,
+};
 
 struct pos {
     int x, y;
