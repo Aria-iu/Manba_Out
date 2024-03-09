@@ -6,6 +6,7 @@ class Robot
     public:
         pos Robt_pos;
         int goods;
+        int status;
         
 
 
