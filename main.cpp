@@ -48,18 +48,32 @@ void test() {
     berths[0].x = 37; berths[0].y = 41;
     berths[1].x = 2; berths[1].y = 187;
     mapFloodFill();
+    int rx = 45, ry = 13;
+    int bx = DD + 1 - rx;
+    int by = DD + 1 - ry;
+    robots[0].p = {rx, ry};
+    robotFloodFill(0);
 
     std::ofstream outFile("../output.txt");
     if (outFile.is_open()) { // 检查文件是否成功打开
+        bool flag = true;
         for(int j = 0; j < SIZE; ++j) {
             for(int k = 0; k < SIZE; ++k) {
-                if(pixels[j][k].ch == '.') {
-                    outFile << pixels[j][k].dist << "\t";
+                if((j >= rx-DD && j <= rx+DD) && (k >= ry-DD && k <= ry+DD)) {
+                    if(pixels[j][k].ch == '.') {
+                        outFile << JM[j+bx][k+by] << "\t";
+                    } else {
+                        outFile << pixels[j][k].ch << "\t";
+                    }
                 } else {
+                    flag = false;
                     outFile << pixels[j][k].ch << "\t";
                 }
             }
             outFile << std::endl; // 换行
+        }
+        if(flag) {
+            cout << "ALL" <<endl;
         }
         outFile.close(); // 关闭文件
     } else {
