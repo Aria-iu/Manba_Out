@@ -14,14 +14,6 @@
 
 using namespace std;
 
-struct Berth {
-    int id;
-    int x;
-    int y;
-    int time;
-    int velocity;
-};
-
 Berth parseBerth(string input);
 
 
@@ -30,8 +22,6 @@ class Map {
 public:
     Map();
     ~Map();
-    void initMap() ;
-
 
     Pixel pixels[SIZE][SIZE];
     Berth berths[NUM_BERTH];

@@ -3,9 +3,6 @@
 
 #include "define.h"
 
-class Goods {
-    int money;
-    pos p;
-};
+
 
 #endif //CODECRAFTSDK_GOODS_H

@@ -15,29 +15,6 @@ Map::~Map() {
 
 }
 
-void Map::initMap() {
-    //testInit
-    ifstream inputFile("../map1.txt"); // 打开文件
-    if (!inputFile) {
-        printf("error open!\n");
-        exit(0);
-    }
-
-    string line;
-    for(int j = 0;j < SIZE;++j) {
-        getline(inputFile, line);
-        for(int k = 0;k < SIZE;++k) {
-            pixels[j][k].ch = line[k];
-        }
-    }
-    inputFile.close();
-    berths[0].x = 37;berths[0].y = 41;
-//    berths[1].x = 31;berths[1].y = 61;
-//    berths[2].x = 28;berths[2].y = 72;
-//    berths[3].x = 19;berths[3].y = 86;
-}
-
-
 void Map::testPrintMap() {
     std::ofstream outFile("../output.txt");
     if (outFile.is_open()) { // 检查文件是否成功打开

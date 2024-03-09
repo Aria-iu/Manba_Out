@@ -102,18 +102,49 @@
 
 
 #include <algorithm>
+#include <iostream>
 
 
 Map map;
 Robot robots[NUM_ROBOT];
+Berth berths[NUM_BERTH];
 vector<Goods> goods_list;
 
 Goods findOptimalGoods(int robot_num) {
     int n = goods_list.size();
 };
 
+
+void initMap() {
+    //testInit
+    ifstream inputFile("../map1.txt"); // 打开文件
+    if (!inputFile) {
+        printf("error open!\n");
+        exit(0);
+    }
+
+
+    inputFile.close();
+    berths[0].x = 37;berths[0].y = 41;
+
+}
+
+
+
 //全局初始化
-void initAll();
+void initAll() {
+    //读取地图 初始化:机器人 像素
+    string line;
+    for(int i = 0;i < SIZE;++i) {
+        getline(std::cin, line);
+        for(int j = 0;j < SIZE;++j) {
+
+        }
+    }
+    //读取泊位 初始化:泊位
+
+    //读取船   初始化:船
+}
 
 //计算机器人动作
 void generateRobotAction () {

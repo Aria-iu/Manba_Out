@@ -48,7 +48,23 @@ struct Pixel {
     short dist[NUM_BERTH] = {888};
 };
 
+struct Goods {
+    int money;
+    pos p;
+};
 
+struct Boat {
+    pos p;
+    int capacity;
+    int num_goods;
+};
 
+struct Berth {
+    int id;
+    int x;
+    int y;
+    int time;
+    int velocity;
+};
 
 #endif //CODECRAFTSDK_DEFINE_H
