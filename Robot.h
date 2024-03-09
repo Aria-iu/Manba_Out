@@ -4,19 +4,21 @@ class Robot
 {
     /* data */
 public:
+    enum ROBOT_STATUS{
+        INIT,
+        GO_GET,
+        GO_SENT,
+        HUNGRY,
+        DUMMY
+    };
     pos p;
-    int goods;
-    Robot_status status;
+    Goods goods;
+    ROBOT_STATUS status;
     int b_id;
-    Get_Or_Not is_handle_goods;
-    int berth_num;
     /* method */
     Robot() {}
     Robot(int startx,int starty){
         p.x = startx;
         p.y = starty;
     }
-    bool can_run();
-    Robot_status get_status();
-    int get_berth_num();
 };
