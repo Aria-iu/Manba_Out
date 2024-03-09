@@ -4,7 +4,8 @@
 #define MAX_FRAME 15000
 #define SIZE 200
 #define NUM_ROBOT 10
-#define NUM_BERTH 1
+#define NUM_BERTH 10
+#define NUM_BOAT  5
 #define UNREACHABLE 888
 
 
@@ -24,10 +25,6 @@ enum Robot_status{
     STOP,
     RUN,
     DUMMY,
-};
-
-struct Robt_pos {
-    int x, y;
 };
 
 // if Robot is RUN , you can take that

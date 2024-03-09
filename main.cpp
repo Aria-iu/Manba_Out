@@ -96,9 +96,7 @@
 //}
 
 #include "define.h"
-#include "Goods.h"
 #include "Robot.h"
-
 
 #include <iostream>
 #include <vector>
@@ -116,45 +114,55 @@ using namespace std;
 Pixel pixels[SIZE][SIZE];
 Berth berths[NUM_BERTH];
 Robot robots[NUM_ROBOT];
+Boat  boats[NUM_BOAT];
 vector<Goods> goods_list;
 
 
 void floodFill();
 
-Goods findOptimalGoods(int robot_num) {
-    int n = goods_list.size();
-};
-
-
-void initMap() {
-    //testInit
-    ifstream inputFile("../map1.txt"); // 打开文件
-    if (!inputFile) {
-        printf("error open!\n");
-        exit(0);
+Goods findOptimalGoods() {
+    for(int r_id = 0;r_id < NUM_ROBOT;r_id++) {
+        if()
     }
-
-
-    inputFile.close();
-    berths[0].x = 37;berths[0].y = 41;
-
-}
-
+    int n = goods_list.size();
+    int b_id = robots[r_id].b_id;
+    int dist[n];
+    for(int i = 0;i < n;++i) {
+        auto & g = goods_list[i];
+        dist[i] = pixels[g.p.x][g.p.y].dist[b_id];
+    }
+};
 
 
 //全局初始化
 void initAll() {
     //读取地图 初始化:机器人 像素
     string line;
+    int r_id = 0;
     for(int i = 0;i < SIZE;++i) {
         getline(std::cin, line);
         for(int j = 0;j < SIZE;++j) {
-            pixels[i][j];
+            char ch = line[j];
+            pixels[i][j].ch = ch;
+            if(ch == 'A') {
+                robots[r_id].p = {i, j};
+            }
         }
     }
     //读取泊位 初始化:泊位
-
+    for(int i = 0;i < NUM_BERTH;++i) {
+        scanf("%d %d %d %d %d",
+              &berths[i].id,
+              &berths[i].x,
+              &berths[i].y,
+              &berths[i].time,
+              &berths[i].velocity
+              );
+    }
     //读取船   初始化:船
+    for(int i = 0;i < NUM_BOAT;++i) {
+        scanf("%d", &boats[i].capacity);
+    }
 }
 
 //计算机器人动作
