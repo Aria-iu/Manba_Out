@@ -140,22 +140,98 @@ void initAll() {
 void generateRobotAction () {
 
 }
+// have these
+struct RobotCommand{
+    enum ACTION{
+        NULL_ACTION,
+        PICK_UP,
+        PUT_DOWN,
+    };
+    ACTION action;
+    DIRECTION direction;
+};
+
+struct BoatCommand{
+    enum Command{
+        NULL_ACTION,
+        SHIP_ACTION,
+        GO_ACTION,
+    };
+    Command command;
+    int b_id;
+};
+
+RobotCommand robotcommands[NUM_ROBOT];
+BoatCommand boatcommands[NUM_BOAT];
+
 
 //执行机器人动作，打印到标准输出
 void executeRobotAction() {
+    for(int i = 0;i<NUM_ROBOT;i++){
+        switch (robotcommands[i].action)
+        {
+            case RobotCommand::ACTION::NULL_ACTION:
+                /* code */
+                break;
+            case RobotCommand::ACTION::PICK_UP:
+                printf("get %d\n",i);
+                break;
+            case RobotCommand::ACTION::PUT_DOWN:
+                printf("pull %d\n",i);
+                break;
+            default:
+                if(robotcommands[i].direction == DIRECTION::NULL_DIRECTION){
 
+                }else{
+                    printf("move %d %d\n",i,robotcommands[i].direction);
+                }
+                break;
+            /*
+                switch (robotcommands[i].direction)
+                {
+                case DIRECTION::LEFT:
+                    printf("move %d\n",i);
+                    break;
+                case DIRECTION::RIGHT:
+                    printf("move %d\n",i);
+                    break;
+                case DIRECTION::UP:
+                    printf("move %d\n",i);
+                    break;
+                case DIRECTION::DOWN:
+                    printf("move %d\n",i);
+                    break;
+                case DIRECTION::NULL_DIRECTION:
+
+                    break;
+                default:
+                    break;
+                }
+            */
+        }
+
+    }
 }
 
 
 //计算轮船动作
-void generateBoatAction() {
-
-}
+void generateBoatAction() {}
 
 
 //执行轮船动作，打印到标准输出
 void executeBoatAction() {
+    for(int i = 0;i<NUM_BOAT;i++){
+        // 不该变该船的状态
+        if(boatcommands[i].command == BoatCommand::Command::NULL_ACTION){
 
+        }else if(boatcommands[i].command == BoatCommand::Command::SHIP_ACTION){
+            // ship id berth_id
+            printf("ship %d %d\n",i,boatcommands[i].b_id);
+        }else{
+            // go to send cargo
+            printf("go %d\n",i);
+        }
+    }
 }
 
 void readFrame() {

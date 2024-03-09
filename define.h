@@ -14,7 +14,7 @@
 //UP    Y增大方向
 //DOWN  Y减小方向
 
-enum DIRECTION{LEFT, RIGHT, UP, DOWN, NULL_DIRECTION};
+enum DIRECTION{RIGHT,LEFT, UP, DOWN, NULL_DIRECTION};
 
 enum Get_Or_Not{
     GET,
