@@ -6,6 +6,7 @@
 #define NUM_ROBOT 10
 #define NUM_BERTH 1
 #define UNREACHABLE 888
+#define NUM_BOAT 5
 
 
 //LEFT  X减小方向

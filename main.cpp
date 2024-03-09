@@ -96,7 +96,6 @@
 //}
 
 #include "define.h"
-#include "Goods.h"
 #include "Robot.h"
 
 
@@ -117,7 +116,7 @@ Pixel pixels[SIZE][SIZE];
 Berth berths[NUM_BERTH];
 Robot robots[NUM_ROBOT];
 vector<Goods> goods_list;
-
+vector<Boat> boats[NUM_BOAT]; 
 
 void floodFill();
 
@@ -127,16 +126,6 @@ Goods findOptimalGoods(int robot_num) {
 
 
 void initMap() {
-    //testInit
-    ifstream inputFile("../map1.txt"); // 打开文件
-    if (!inputFile) {
-        printf("error open!\n");
-        exit(0);
-    }
-
-
-    inputFile.close();
-    berths[0].x = 37;berths[0].y = 41;
 
 }
 
@@ -180,6 +169,33 @@ void executeBoatAction() {
 }
 
 void readFrame() {
+    int money, boat_capacity, id;
+    scanf("%d%d", &id, &money);
+    int num;
+    scanf("%d",&num);
+    for(int i = 0; i < num; i ++){
+        int x,y,val;
+        scanf("%d%d%d", &x, &y, &val);
+        Goods* g= (Goods*)malloc(sizeof(Goods));
+        g->p.x = x;
+        g->p.y = y;
+        g->money = val;
+        goods_list.emplace_back(g);
+    }
+
+    for(int i = 0; i < NUM_ROBOT; i ++){
+        int sts;
+        scanf("%d%d%d%d", &robots[i].is_handle_goods, &robots[i].p.x, &robots[i].p.y, &sts);
+        if (sts == 0){
+            robots[i].status = Robot_status::DUMMY;
+        }else{
+            robots[i].status = Robot_status::RUN;
+        }
+    }
+
+    for(int i = 0; i < NUM_BOAT; i ++){
+
+    }
 
 }
 
