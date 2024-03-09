@@ -232,6 +232,7 @@ void executeBoatAction() {
             printf("go %d\n",i);
         }
     }
+    printf("OK\n");
 }
 
 void readFrame() {
