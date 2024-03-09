@@ -1,14 +1,13 @@
-#include "Map.h"
-
-const int robot_num = 10;
-
-
+#include <stack>
+#include "define.h"
 
 enum Robot_status{
     STOP,
     RUN,
     DUMMY,
 };
+
+
 class Robot
 {
     /* data */

@@ -95,10 +95,20 @@
 //    return 0;
 //}
 
+#include "define.h"
 #include "Map.h"
+#include "Goods.h"
+#include "Robot.h"
+
+Map map;
+Robot robots[NUM_ROBOT];
+vector<Goods> goods_list;
+
+Goods findOptimalGoods(int robot_num) {
+
+};
 
 int main() {
-    Map map;
     map.initMap();
     map.floodFill();
     map.testPrintMap();

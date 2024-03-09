@@ -1,7 +1,3 @@
-//
-// Created by Lenovo on 2024/3/8.
-//
-
 #include "Map.h"
 
 Berth parseBerth(string input) {
