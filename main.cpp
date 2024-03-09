@@ -116,7 +116,7 @@ Pixel pixels[SIZE][SIZE];
 Berth berths[NUM_BERTH];
 Robot robots[NUM_ROBOT];
 vector<Goods> goods_list;
-vector<Boat> boats[NUM_BOAT]; 
+vector<Boat> boats;
 
 void floodFill();
 
@@ -194,7 +194,17 @@ void readFrame() {
     }
 
     for(int i = 0; i < NUM_BOAT; i ++){
-
+        int sts,num;
+        scanf("%d%d\n", &sts,&num);
+        if(sts==0){
+            ///Boat::status
+            boats[i].sts = Boat::status::RUNNING;
+        }else if(sts==1){
+            boats[i].sts = Boat::status::OK;
+        }else if(sts==2){
+            boats[i].sts = Boat::status::WAIT;
+        }
+        boats[i].berth_num = num;
     }
 
 }

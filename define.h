@@ -55,9 +55,21 @@ struct Goods {
 };
 
 struct Boat {
-    pos p;
+    // pos p;
+    enum status{
+        // 移动中，运输货物
+        RUNNING,
+        // 装货  运输完成（需要调度）
+        OK,
+        // 
+        WAIT,
+    };
     int capacity;
     int num_goods;
+    // 目标泊位
+    int berth_num;
+    status sts;
+    
 };
 
 struct Berth {

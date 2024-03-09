@@ -7,6 +7,7 @@ class Robot
         pos p;
         int goods;
         Robot_status status;
+        int b_id;
         Get_Or_Not is_handle_goods;
         int berth_num;
     /* method */
