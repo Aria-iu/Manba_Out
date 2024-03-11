@@ -147,6 +147,10 @@ struct RobotCommand{
     DIRECTION direction;
 };
 
+
+// 假定泊位间移动的时间都是500帧（10s）
+// 轮船结束运输产生价值时刻，可以执行move把轮船从虚拟点移动到一个空闲的泊位上。
+
 struct BoatCommand{
     enum Command{
         NULL_ACTION,
@@ -277,8 +281,79 @@ unsigned char avoid(unsigned char directon,pos p){
 }
 
 //计算轮船动作
-void generateBoatAction() {}
-
+void generateBoatAction() {
+    for(int i = 0;i<NUM_BOAT;i++){
+        handle_boat(i);
+    }
+}
+void handle_boat(int boat_num){
+    switch (boats[boat_num].sts)
+    {
+    case Boat::status::RUNNING:
+        boatcommands[boat_num] = {
+            BoatCommand::Command::NULL_ACTION,
+            boats[boat_num].berth_num
+        };
+        break;
+    case Boat::status::WAIT:
+    // 找到当前空闲并且货物数量最多的港口
+        int dst = find_best_berth();
+        if(dst == -1){
+            boatcommands[boat_num] = {
+                BoatCommand::Command::NULL_ACTION,
+                boats[boat_num].berth_num
+            };
+        }else{
+            boatcommands[boat_num] = {
+                BoatCommand::Command::SHIP_ACTION,
+                dst
+            };
+        }
+        break;
+    case Boat::status::OK:
+        int bid_tmp = boats[boat_num].berth_num;
+        if(bid_tmp==-1){
+            // 已经到达虚拟点交货
+            // 寻找没有船只的货物最多的港口
+            int dst = find_best_berth();
+            boatcommands[boat_num] = {
+                BoatCommand::Command::SHIP_ACTION,
+                dst,
+            };
+            // 将该港口设置为已经有船只
+            berths[dst].num_loading += 1;
+        }else{
+            boatcommands[boat_num] = {
+                BoatCommand::Command::GO_ACTION,
+                -1,
+            };
+            berths[bid_tmp].num_loading -= 1;
+        }
+        break;    
+    default:
+        break;
+    }
+}
+// 找到，返回港口编号;找不到，返回-1
+int find_best_berth(){
+    vector<int> dsts;
+        for(int i = 0;i<NUM_BERTH;i++){
+            if(berths[i].num_loading!=0){
+                continue;
+            }else{
+                dsts.push_back(i);
+            }
+        }
+        int dst = -1;
+        int num_goods_tmp = 0;
+        for(int j = 0; j < dsts.size();j++){
+            if(berths[dsts[j]].num_goods>num_goods_tmp){
+                num_goods_tmp = berths[dsts[j]].num_goods;
+                dst = dsts[j];
+            }
+        }
+    return dst;
+}
 
 //执行轮船动作，打印到标准输出
 void executeBoatAction() {

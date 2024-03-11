@@ -63,6 +63,7 @@ struct Boat {
     int capacity;
     int num_goods;
     // 目标泊位
+    // 如果目标泊位是虚拟点，则为-1
     int berth_num;
     status sts;
     
@@ -74,6 +75,9 @@ struct Berth {
     int y;
     int time;
     int velocity;
+    int num_goods=0;
+    int num_loading = 0;
+    int num_waiting = 0;
 };
 
 #endif //CODECRAFTSDK_DEFINE_H
