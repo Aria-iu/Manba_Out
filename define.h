@@ -78,6 +78,27 @@ struct Boat {
     status sts;
 };
 
+class Robot
+{
+    /* data */
+public:
+    enum ROBOT_STATUS{
+        HUNGRY,
+        DUMMY,
+        FULL
+    };
+    pos p;
+    pos target;
+    ROBOT_STATUS status;
+    /* method */
+    Robot() {}
+    Robot(int startx,int starty){
+        p.x = startx;
+        p.y = starty;
+    }
+};
+
+
 struct RobotCommand {
     //NULL_ACTION 不捡起也不放下
     //PICK_UP 捡起

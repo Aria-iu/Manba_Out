@@ -10,6 +10,4 @@ endif (!WIN32)
 
 AUX_SOURCE_DIRECTORY(. src)
 ADD_EXECUTABLE(main ${src}
-        Robot.h
-        Robot.cpp
         define.h)

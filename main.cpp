@@ -1,8 +1,4 @@
-//#include <bits/stdc++.h>
-
 #include "define.h"
-#include "Robot.h"
-
 #include <iostream>
 #include <vector>
 #include <stack>
@@ -476,21 +472,7 @@ void generateBoatAction() {
 
 
 //执行轮船动作，打印到标准输出
-void executeBoatAction() {
-    for(int i = 0;i<NUM_BOAT;i++){
-        // 不该变该船的状态
-        if(boat_commands[i].command == BoatCommand::Command::NULL_ACTION){
-
-        }else if(boat_commands[i].command == BoatCommand::Command::SHIP_ACTION){
-            // ship id berth_id
-            printf("ship %d %d\n",i,boat_commands[i].b_id);
-        }else{
-            // go to send cargo
-            printf("go %d\n",i);
-        }
-    }
-    printf("OK\n");
-}
+void executeBoatAction();
 
 void readFrame();
 
@@ -506,7 +488,6 @@ int main() {
     }
     return 0;
 }
-
 
 void mapFloodFill() {
     int x, y, up, down, left, right;
@@ -583,10 +564,10 @@ void mapFloodFill() {
 
 void initAll() {
     //读取地图 初始化:机器人 像素
-    string line;
+    char line[220];
     int r_id = 0;
     for(int i = 0;i < SIZE;++i) {
-        getline(std::cin, line);
+        scanf("%s", line);
         for(int j = 0;j < SIZE;++j) {
             char ch = line[j];
             pixels[i][j].ch = ch;
@@ -601,26 +582,28 @@ void initAll() {
     //读取泊位 初始化:泊位
     for(int i = 0;i < NUM_BERTH;++i) {
         Berth & b = berths[i];
-        scanf("%d %d %d %d %d",
-              &b.id,
-              &b.x,
-              &b.y,
-              &b.time,
-              &b.velocity
-        );
+        scanf("%d", &b.id);
+        scanf("%d%d%d%d", &b.x, &b.y, &b.time, &b.velocity);
         b.num_goods = 0;
         b.num_loading = 0;
         b.num_waiting = 0;
     }
 
+    int capacity;
+    scanf("%d", &capacity);
     //读取船   初始化:船
     for(int i = 0;i < NUM_BOAT;++i) {
         Boat & b = boats[i];
-        scanf("%d", &b.capacity);
+        b.capacity = capacity;
         b.sts = Boat::OK;
         b.berth_num = -1;
         b.num_goods = 0;
     }
+
+    char okk[100];
+    scanf("%s", okk);
+    printf("OK\n");
+    fflush(stdout);
 
     mapFloodFill();
     for(int j = 0;j < SIZE;++j) {
@@ -761,4 +744,20 @@ void readFrame() {
         }
         boats[i].berth_num = n;
     }
+}
+
+void executeBoatAction() {
+    for(int i = 0;i<NUM_BOAT;i++){
+        // 不该变该船的状态
+        if(boat_commands[i].command == BoatCommand::Command::NULL_ACTION){
+
+        }else if(boat_commands[i].command == BoatCommand::Command::SHIP_ACTION){
+            // ship id berth_id
+            printf("ship %d %d\n",i,boat_commands[i].b_id);
+        }else{
+            // go to send cargo
+            printf("go %d\n",i);
+        }
+    }
+    printf("OK\n");
 }
