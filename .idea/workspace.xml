@@ -21,13 +21,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d69a7590-1064-4d95-9ac8-9b8dd13f0611" name="更改" comment="aaa">
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/_2024_3_9_12_11____.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/在进行更新之前于_2024_3_9_12_11_取消提交了更改_[更改]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/a.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Goods.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Goods.h" beforeDir="false" afterPath="$PROJECT_DIR$/Goods.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Map.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Map.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Map.h" beforeDir="false" afterPath="$PROJECT_DIR$/Map.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Robot.h" beforeDir="false" afterPath="$PROJECT_DIR$/Robot.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-a631d12a671b3cbd295f.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/index-2024-03-09T02-35-20-0577.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/target-main-Debug-4d55be45b415930509c2.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/main.dir/main.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/main.dir/main.cpp.obj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/build.ninja" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/main.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/main.exe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/define.h" beforeDir="false" afterPath="$PROJECT_DIR$/define.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
@@ -80,6 +88,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "git-widget-placeholder": "init",
+    "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "C:/Users/Lenovo/Desktop/CLionProject/MMM/Manba_Out",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -90,9 +99,9 @@
   }
 }]]></component>
   <component name="RunManager">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="main" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CodeCraftSDK" TARGET_NAME="main" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="CodeCraftSDK" RUN_TARGET_NAME="main">
@@ -109,7 +118,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1709951051867</updated>
-      <workItem from="1709951052915" duration="5542000" />
+      <workItem from="1709951052915" duration="34291000" />
+      <workItem from="1710125829526" duration="90000" />
     </task>
     <task id="LOCAL-00001" summary="aaa">
       <option name="closed" value="true" />
@@ -135,7 +145,55 @@
       <option name="project" value="LOCAL" />
       <updated>1709957489361</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="aaa">
+      <option name="closed" value="true" />
+      <created>1709958690178</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1709958690178</updated>
+    </task>
+    <task id="LOCAL-00005" summary="aaa">
+      <option name="closed" value="true" />
+      <created>1709959056471</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1709959056471</updated>
+    </task>
+    <task id="LOCAL-00006" summary="aaa">
+      <option name="closed" value="true" />
+      <created>1709963494548</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1709963494548</updated>
+    </task>
+    <task id="LOCAL-00007" summary="aaa">
+      <option name="closed" value="true" />
+      <created>1709974739382</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1709974739382</updated>
+    </task>
+    <task id="LOCAL-00008" summary="aaa">
+      <option name="closed" value="true" />
+      <created>1709978104128</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1709978104128</updated>
+    </task>
+    <task id="LOCAL-00009" summary="aaa">
+      <option name="closed" value="true" />
+      <created>1709978131108</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1709978131108</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -150,5 +208,21 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="aaa" />
     <option name="LAST_COMMIT_MESSAGE" value="aaa" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/main.cpp</url>
+          <line>52</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/main.cpp</url>
+          <line>58</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

@@ -9,7 +9,8 @@ public:
         GO_GET,
         GO_SENT,
         HUNGRY,
-        DUMMY
+        DUMMY,
+        FULL
     };
     pos p;
     Goods goods;

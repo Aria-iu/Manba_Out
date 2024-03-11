@@ -49,18 +49,6 @@ cmake_ninja_workdir = C$:/Users/Lenovo/Desktop/CLionProject/MMM/Manba_Out/cmake-
 
 build cmake_object_order_depends_target_main: phony || CMakeFiles/main.dir
 
-build CMakeFiles/main.dir/Goods.cpp.obj: CXX_COMPILER__main_unscanned_Debug C$:/Users/Lenovo/Desktop/CLionProject/MMM/Manba_Out/Goods.cpp || cmake_object_order_depends_target_main
-  DEP_FILE = CMakeFiles\main.dir\Goods.cpp.obj.d
-  FLAGS = -g -std=gnu++17 -fdiagnostics-color=always
-  OBJECT_DIR = CMakeFiles\main.dir
-  OBJECT_FILE_DIR = CMakeFiles\main.dir
-
-build CMakeFiles/main.dir/Map.cpp.obj: CXX_COMPILER__main_unscanned_Debug C$:/Users/Lenovo/Desktop/CLionProject/MMM/Manba_Out/Map.cpp || cmake_object_order_depends_target_main
-  DEP_FILE = CMakeFiles\main.dir\Map.cpp.obj.d
-  FLAGS = -g -std=gnu++17 -fdiagnostics-color=always
-  OBJECT_DIR = CMakeFiles\main.dir
-  OBJECT_FILE_DIR = CMakeFiles\main.dir
-
 build CMakeFiles/main.dir/Robot.cpp.obj: CXX_COMPILER__main_unscanned_Debug C$:/Users/Lenovo/Desktop/CLionProject/MMM/Manba_Out/Robot.cpp || cmake_object_order_depends_target_main
   DEP_FILE = CMakeFiles\main.dir\Robot.cpp.obj.d
   FLAGS = -g -std=gnu++17 -fdiagnostics-color=always
@@ -81,7 +69,7 @@ build CMakeFiles/main.dir/main.cpp.obj: CXX_COMPILER__main_unscanned_Debug C$:/U
 #############################################
 # Link the executable main.exe
 
-build main.exe: CXX_EXECUTABLE_LINKER__main_Debug CMakeFiles/main.dir/Goods.cpp.obj CMakeFiles/main.dir/Map.cpp.obj CMakeFiles/main.dir/Robot.cpp.obj CMakeFiles/main.dir/main.cpp.obj
+build main.exe: CXX_EXECUTABLE_LINKER__main_Debug CMakeFiles/main.dir/Robot.cpp.obj CMakeFiles/main.dir/main.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\main.dir

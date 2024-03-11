@@ -16,12 +16,16 @@
 
 using namespace std;
 
+int frame = 0;
 Pixel pixels[SIZE][SIZE];
 
 Berth berths[NUM_BERTH];
 Robot robots[NUM_ROBOT];
 Boat  boats[NUM_BOAT];
 vector<Goods> goods_list;
+
+RobotCommand robot_commands[NUM_ROBOT];
+BoatCommand boat_commands[NUM_BOAT];
 
 unsigned short JM[2*DD+1][2*DD+1]; //探测距离矩阵 juli
 bool CM[2*DD+1][2*DD+1];    //是否探测过矩阵
@@ -81,17 +85,202 @@ void test() {
     }
 }
 
+bool inBerth(int x, int y) {
+    for(int i = 0;i < NUM_BERTH;++i) {
+        Berth & b = berths[i];
+        if(x >= b.x && x < b.x + 4 && y >= b.y && y < b.y + 4) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool inDetection(int rx, int ry, int gx, int gy) {
+    if(rx-DD<=gx && gx<=rx+DD && ry-DD<=gy && gy<=ry+DD) {
+        return true;
+    }
+    return false;
+}
+
+unsigned char findOptimal(int r_id, vector<Goods>& v, bool & pick) {
+    int n = v.size();
+    unsigned short dist[n];
+    int rx = robots[r_id].p.x, ry = robots[r_id].p.y;
+    int bx = DD + 1 - rx, by = DD + 1 - ry;
+    int fx, fy;
+    robotFloodFill(r_id);
+    for(int i = 0;i < n;++i) {
+        Goods & g = v[i];
+        fx = g.p.x + bx;
+        fy = g.p.y + by;
+        unsigned short d = JM[fx][fy];
+        if(frame - g.time < d) {
+            dist[n] = UNREACHABLE;
+        } else {
+            dist[n] = d;
+            dist[n] += pixels[g.p.x][g.p.y].dist;
+        }
+    }
+
+    float profit = v[0].money / dist[n];
+    int min = 0;
+    for(int i = 1;i < n;++i) {
+        int p = v[i].money / dist[i];
+        if(p > profit) {
+            profit = p;
+            min = i;
+        }
+    }
+
+    fx = v[min].p.x + bx;
+    fy = v[min].p.y + by;
+    if(JM[fx][fy] == 1) {
+        pick = true;
+    }
+
+    int x = v[min].p.x + bx, y = v[min].p.x + by;
+    int left, right, up, down;
+    while(true) {
+        left = x-1, right = x+1, up = y+1, down = y-1;
+        if(DM[left][y] == RIGHT) {
+            if(left == DD+1 && y == DD+1) {
+                return RIGHT;
+            }
+            x = left;
+        } else if(DM[right][y] == LEFT) {
+            if(right == DD+1 && y == DD+1) {
+                return LEFT;
+            }
+            x = right;
+        } else if(DM[x][up] == DOWN) {
+            if(x == DD+1 && up == DD+1) {
+                return DOWN;
+            }
+            y = up;
+        } else if(DM[x][down] == UP) {
+            if(x == DD+1 && up == DD+1) {
+                return UP;
+            }
+            y = down;
+        }
+    }
+}
+
 //全局初始化
 void initAll();
 
+/*
+ * 设置NUM_ROBOT个栈，将路径压入栈中，仅当曼哈顿距离内有m多个点时才使用洪水填充法
+ *
+ * */
+
+
 //计算机器人动作
 void generateRobotAction () {
+    pos next_pos[NUM_ROBOT];
+    unsigned char directions[NUM_ROBOT];
+    bool pick[NUM_ROBOT];
+
+    for(int i = 0;i < NUM_ROBOT;++i) {
+        pick[i] = false;
+        Robot & r = robots[i]; //机器人
+        int rx = r.p.x, ry = r.p.y; //机器人坐标
+        unsigned char d = NULL_DIRECTION; //机器人移动方向
+        RobotCommand & command = robot_commands[i];
+        if(r.status == Robot::HUNGRY) {
+            vector<Goods> v;
+            for(auto & g : goods_list) {
+                if(inDetection(rx, ry, g.p.x, g.p.y)) {
+                    v.emplace_back(g);
+                }
+            }
+            if(!v.empty()) {
+                d = findOptimal(i, v, pick[i]);
+            } else {
+                d = pixels[rx][ry].direction;
+            }
+        } else if(r.status == Robot::FULL) {
+            d = pixels[rx][ry].direction;
+        }
+        command.direction = d;
+        directions[i] = d;
+        if(d == LEFT) {
+            next_pos[i] = pos{rx-1, ry};
+        } else if(d == RIGHT) {
+            next_pos[i] = pos{rx+1, ry};
+        } else if(d == UP) {
+            next_pos[i] = pos{rx, ry+1};
+        } else if(d == DOWN){
+            next_pos[i] = pos{rx, ry-1};
+        } else {
+            next_pos[i] = pos{rx, ry};
+        }
+    }
+
+    int x1, x2, y1, y2;
+    bool flag = false;
+    while(!flag) {
+        for(int i = 0;i < NUM_BOAT;i++) {
+            for(int j = i;j < NUM_ROBOT;j++) {
+                x1 = next_pos[i].x, y1 = next_pos[i].y;
+                x2 = next_pos[j].x, y2 = next_pos[j].y;
+                if(x1 == x2 && y1 == y2) {
+
+                }
+            }
+        }
+        break;
+    }
+
+    for(int i = 0;i < NUM_ROBOT;i++) {
+        Robot & r = robots[i];
+        RobotCommand & command = robot_commands[i];
+        if(r.status == Robot::FULL) {
+            if(pixels[next_pos[i].x][next_pos[i].y].direction == 0) {
+                command.action = RobotCommand::PUT_DOWN;
+            } else {
+                command.action = RobotCommand::NULL_ACTION;
+            }
+        } else if(r.status == Robot::HUNGRY) {
+            if(pick[i]) {
+                command.action = RobotCommand::PICK_UP;
+            } else {
+                command.action = RobotCommand::NULL_ACTION;
+            }
+        } else {
+            command.action = RobotCommand::NULL_ACTION;
+        }
+    }
+}
+
+unsigned char avoid(unsigned char direction, pos p) {
+    unsigned char opposite;
 
 }
 
 //执行机器人动作，打印到标准输出
 void executeRobotAction() {
+    for(int i = 0;i<NUM_ROBOT;i++){
+        switch (robot_commands[i].action)
+        {
+            case RobotCommand::ACTION::NULL_ACTION:
+                /* code */
+                break;
+            case RobotCommand::ACTION::PICK_UP:
+                printf("get %d\n",i);
+                break;
+            case RobotCommand::ACTION::PUT_DOWN:
+                printf("pull %d\n",i);
+                break;
+            default:
+                if(robot_commands[i].direction == DIRECTION::NULL_DIRECTION){
 
+                }else{
+                    printf("move %d %d\n",i,robot_commands[i].direction);
+                }
+                break;
+        }
+    }
 }
 
 
@@ -103,24 +292,33 @@ void generateBoatAction() {
 
 //执行轮船动作，打印到标准输出
 void executeBoatAction() {
+    for(int i = 0;i<NUM_BOAT;i++){
+        // 不该变该船的状态
+        if(boat_commands[i].command == BoatCommand::Command::NULL_ACTION){
 
+        }else if(boat_commands[i].command == BoatCommand::Command::SHIP_ACTION){
+            // ship id berth_id
+            printf("ship %d %d\n",i,boat_commands[i].b_id);
+        }else{
+            // go to send cargo
+            printf("go %d\n",i);
+        }
+    }
+    printf("OK\n");
 }
 
-void readFrame() {
-
-}
+void readFrame();
 
 int main() {
-//    initAll();
-//    for(int frame = 0;frame < MAX_FRAME; ++frame) {
-//        readFrame();
-//        generateRobotAction();
-//        generateBoatAction();
-//        executeRobotAction();
-//        executeBoatAction();
-//        fflush(stdout);
-//    }
-    test();
+    initAll();
+    for(frame = 0;frame < MAX_FRAME; ++frame) {
+        readFrame();
+        generateRobotAction();
+        generateBoatAction();
+        executeRobotAction();
+        executeBoatAction();
+        fflush(stdout);
+    }
     return 0;
 }
 
@@ -196,7 +394,6 @@ void mapFloodFill() {
     }
 }
 
-
 void initAll() {
     //读取地图 初始化:机器人 像素
     string line;
@@ -227,7 +424,6 @@ void initAll() {
     }
 }
 
-
 void robotFloodFill(int r_id) {
     Robot & r = robots[r_id];
     int rx, ry, bx, by;
@@ -236,11 +432,12 @@ void robotFloodFill(int r_id) {
     pos p;
 
     //初始化三个矩阵
-    int s = 2*DD+1;
-    std::fill_n(&JM[0][0], s * s, UNREACHABLE);
+    int s = (2*DD+1)*(2*DD+1);
+    std::fill_n(&JM[0][0], s, UNREACHABLE);
     // 初始化是否探测过矩阵
-    std::fill_n(&CM[0][0], s * s, false);
-    // 不需要初始化探测方向矩阵
+    std::fill_n(&CM[0][0], s, false);
+    // 初始化探测方向矩阵
+    std::fill_n(&DM[0][0], s, NULL_DIRECTION);
 
     //初始化栈和初始位置
     stack<pos> stackA, stackB;
@@ -296,4 +493,85 @@ void robotFloodFill(int r_id) {
         front = after;
         after = temp;
     }
+}
+
+void readFrame() {
+    int money, boat_capacity, id;
+    scanf("%d%d", &id, &money);
+    int num;
+    scanf("%d",&num);
+    for(int i = 0; i < num; i ++){
+        int x,y,val;
+        scanf("%d%d%d", &x, &y, &val);
+        Goods g;
+        g.p = pos{x, y};
+        g.money = val;
+        goods_list.emplace_back(g);
+    }
+
+    for(int i = 0; i < NUM_ROBOT; i ++){
+        int sts;
+        int handle;
+        Robot::ROBOT_STATUS last_sts;
+        last_sts = robots[i].status;
+        scanf("%d%d%d%d", &handle, &robots[i].p.x, &robots[i].p.y, &sts);
+        if (sts == 0){
+            robots[i].status = Robot::ROBOT_STATUS::DUMMY;
+        }else{
+            if(handle==0){
+                switch (last_sts)
+                {
+                    case Robot::ROBOT_STATUS::INIT:
+                        robots[i].status = Robot::ROBOT_STATUS::HUNGRY;
+                        break;
+                    case Robot::ROBOT_STATUS::HUNGRY:
+                        robots[i].status = Robot::ROBOT_STATUS::GO_GET;
+                        break;
+                    case Robot::ROBOT_STATUS::GO_GET:
+                        break;
+                    case Robot::ROBOT_STATUS::GO_SENT:
+                        robots[i].status = Robot::ROBOT_STATUS::HUNGRY;
+                        break;
+                    case Robot::ROBOT_STATUS::DUMMY:
+                        robots[i].status = Robot::ROBOT_STATUS::INIT;
+                        break;
+                    default:
+                        break;
+                }
+            }else{
+                switch (last_sts)
+                {
+                    case Robot::ROBOT_STATUS::HUNGRY:
+                        robots[i].status = Robot::ROBOT_STATUS::GO_SENT;
+                        break;
+                    case Robot::ROBOT_STATUS::GO_GET:
+                        robots[i].status = Robot::ROBOT_STATUS::GO_SENT;
+                        break;
+                    case Robot::ROBOT_STATUS::GO_SENT:
+                        robots[i].status = Robot::ROBOT_STATUS::GO_SENT;
+                        break;
+                    case Robot::ROBOT_STATUS::DUMMY:
+                        robots[i].status = Robot::ROBOT_STATUS::INIT;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    for(int i = 0; i < NUM_BOAT; i ++){
+        int sts,n;
+        scanf("%d%d\n", &sts, &n);
+        if(sts==0){
+            ///Boat::status
+            boats[i].sts = Boat::status::RUNNING;
+        }else if(sts==1){
+            boats[i].sts = Boat::status::OK;
+        }else if(sts==2){
+            boats[i].sts = Boat::status::WAIT;
+        }
+        boats[i].berth_num = n;
+    }
+
 }
