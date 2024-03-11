@@ -1,10 +1,5 @@
+#include <bits/stdc++.h>
 #include "define.h"
-#include <iostream>
-#include <vector>
-#include <stack>
-#include <string>
-#include <fstream>
-#include <algorithm>
 
 using namespace std;
 
