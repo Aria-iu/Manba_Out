@@ -7,11 +7,7 @@
 #include <vector>
 #include <stack>
 #include <string>
-#include <strstream>
-#include <sstream>
 #include <fstream>
-#include <algorithm>
-#include <limits>
 #include <algorithm>
 
 using namespace std;
@@ -23,6 +19,8 @@ Berth berths[NUM_BERTH];
 Robot robots[NUM_ROBOT];
 Boat  boats[NUM_BOAT];
 vector<Goods> goods_list;
+stack<unsigned char> steps[NUM_ROBOT];
+
 
 RobotCommand robot_commands[NUM_ROBOT];
 BoatCommand boat_commands[NUM_BOAT];
@@ -86,13 +84,48 @@ void test() {
 }
 
 bool inBerth(int x, int y) {
+    if(pixels[x][y].ch == 'B') {
+        return true;
+    }
+    return false;
+}
+
+int getBid(int x, int y) {
     for(int i = 0;i < NUM_BERTH;++i) {
         Berth & b = berths[i];
         if(x >= b.x && x < b.x + 4 && y >= b.y && y < b.y + 4) {
-            return true;
+            return i;
         }
     }
-    return false;
+    return -1;
+}
+
+pos newPos(int x, int y, unsigned char direction) {
+    if(direction == LEFT) {
+        return pos{x-1, y};
+    } else if(direction == RIGHT) {
+        return pos{x+1, y};
+    } else if(direction == UP) {
+        return pos{x, y+1};
+    } else if(direction == DOWN){
+        return pos{x, y-1};
+    } else {
+        return pos{x, y};
+    }
+}
+
+unsigned char oppositeDirection(unsigned direction) {
+        if(direction == RIGHT) {
+            return LEFT;
+        } else if(direction == LEFT) {
+            return RIGHT;
+        } else if(direction == DOWN) {
+           return UP;
+        } else if(direction == UP) {
+            return DOWN;
+        } else {
+            return NULL_DIRECTION;
+        }
 }
 
 bool inDetection(int rx, int ry, int gx, int gy) {
@@ -102,13 +135,25 @@ bool inDetection(int rx, int ry, int gx, int gy) {
     return false;
 }
 
-unsigned char findOptimal(int r_id, vector<Goods>& v, bool & pick) {
-    int n = v.size();
-    unsigned short dist[n];
-    int rx = robots[r_id].p.x, ry = robots[r_id].p.y;
-    int bx = DD + 1 - rx, by = DD + 1 - ry;
-    int fx, fy;
-    robotFloodFill(r_id);
+int robotFindOptimal(int r_id) {
+    vector<Goods> v; //可探测的货物列表
+    int rx = robots[r_id].p.x, ry = robots[r_id].p.y; //机器人位置
+    //初始化可探测的货物列表
+    for(auto & g : goods_list) {
+        if(inDetection(rx, ry, g.p.x, g.p.y)) {
+            v.emplace_back(g);
+        }
+    }
+    if(v.empty()) {
+        return -1;
+    }
+
+    int n = v.size(); //可探测的货物数量
+    unsigned short dist[n]; //路径查长度列表
+    int bx = DD + 1 - rx, by = DD + 1 - ry; //偏置值，用来将全图矩阵坐标转化成小图矩阵坐标
+    int fx, fy; //货物在小图中的坐标
+    robotFloodFill(r_id); //对小图进行以机器人为中心，DD为半径的洪水填充法
+    //计算货物到机器人的最短路径长度
     for(int i = 0;i < n;++i) {
         Goods & g = v[i];
         fx = g.p.x + bx;
@@ -118,10 +163,11 @@ unsigned char findOptimal(int r_id, vector<Goods>& v, bool & pick) {
             dist[n] = UNREACHABLE;
         } else {
             dist[n] = d;
-            dist[n] += pixels[g.p.x][g.p.y].dist;
+            dist[n] += pixels[g.p.x][g.p.y].dist[pixels[g.p.x][g.p.y].closest];
         }
     }
 
+    //找到收益最大的货物
     float profit = v[0].money / dist[n];
     int min = 0;
     for(int i = 1;i < n;++i) {
@@ -132,38 +178,102 @@ unsigned char findOptimal(int r_id, vector<Goods>& v, bool & pick) {
         }
     }
 
-    fx = v[min].p.x + bx;
-    fy = v[min].p.y + by;
-    if(JM[fx][fy] == 1) {
-        pick = true;
+    pos p ;
+    unsigned char d;
+    stack<unsigned char> s;
+    int px = goods_list[min].p.x + bx , py = goods_list[min].p.y + by;
+    while(p.x != DD+1 && p.y != DD+1) {
+        d = DM[px][py];
+        p = newPos(px, py, d);
+        d = oppositeDirection(d);
+        px = p.x, px = p.y;
+        s.push(d);
     }
 
-    int x = v[min].p.x + bx, y = v[min].p.x + by;
-    int left, right, up, down;
-    while(true) {
-        left = x-1, right = x+1, up = y+1, down = y-1;
-        if(DM[left][y] == RIGHT) {
-            if(left == DD+1 && y == DD+1) {
-                return RIGHT;
-            }
-            x = left;
-        } else if(DM[right][y] == LEFT) {
-            if(right == DD+1 && y == DD+1) {
-                return LEFT;
-            }
-            x = right;
-        } else if(DM[x][up] == DOWN) {
-            if(x == DD+1 && up == DD+1) {
-                return DOWN;
-            }
-            y = up;
-        } else if(DM[x][down] == UP) {
-            if(x == DD+1 && up == DD+1) {
-                return UP;
-            }
-            y = down;
+    while(!s.empty()) {
+        steps[r_id].push(s.top());
+        s.pop();
+    }
+
+    return min;
+}
+
+
+//需要初始化pixels.closest
+int berthFindOptimal(int b_id, int r_id) {
+    if(goods_list.empty()) {
+        return -1;
+    }
+
+    //计算运输每个货物需要运动的的最短路径长度
+    int n = goods_list.size(), gx, gy;
+    int per[n];
+    for(int i = 0;i < n;++i) {
+        Goods & g = goods_list[i];
+        gx = g.p.x, gy = g.p.y;
+        Pixel & p = pixels[gx][gy];
+        per[i] = p.dist[b_id];
+        per[i] += p.dist[p.closest];
+        if(per[i] > LIFE_TIME - (frame - g.time)) {
+            per[i] = UNREACHABLE;
         }
     }
+
+
+    //找到 价值/路径长度 最大的货物
+    float profit = goods_list[0].money / per[0];
+    int m = 0;
+    for(int i = 1;i < n;i++) {
+        if(per[i] != UNREACHABLE) {
+            float p = goods_list[i].money/per[i];
+            if(p > profit) {
+                profit = p;
+                m = i;
+            }
+        }
+    }
+
+    int px = goods_list[m].p.x, py = goods_list[m].p.x;
+    pos p;
+    unsigned d;
+    stack<unsigned char> s;
+    //构造反向最短路径栈
+    while(!inBerth(px,py)) {
+        d = pixels[px][py].direction[b_id];
+        p = newPos(px, py, d);
+        d = oppositeDirection(d);
+        px = p.x, px = p.y;
+        s.push(d);
+    }
+
+    //rx ry机器人位置 dx dy是港口出口到机器人位置的差
+    int rx = robots[r_id].p.x, ry = robots[r_id].p.y;
+    int dx = px - rx, dy = py - ry;
+
+    while(dx < 0) { //出口在机器人的左面
+        dx++;
+        s.push(LEFT);
+    }
+    while(dx > 0) { //出口在机器人的右面
+        dx--;
+        s.push(RIGHT);
+    }
+    while(dy < 0) { //出口在机器人的下面
+        dy++;
+        s.push(DOWN);
+    }
+    while(dy > 0) { //出口在机器人的上面
+        dy--;
+        s.push(UP);
+    }
+
+    //由于是反向构造的路径，所以需要将栈颠倒过来
+    while(!s.empty()) {
+        steps[r_id].push(s.top());
+        s.pop();
+    }
+
+    return m;
 }
 
 //全局初始化
@@ -182,62 +292,65 @@ void generateRobotAction () {
     bool pick[NUM_ROBOT];
 
     for(int i = 0;i < NUM_ROBOT;++i) {
-        pick[i] = false;
+        pick[i] = false; //初始化捡起动作标志
         Robot & r = robots[i]; //机器人
         int rx = r.p.x, ry = r.p.y; //机器人坐标
         unsigned char d = NULL_DIRECTION; //机器人移动方向
-        RobotCommand & command = robot_commands[i];
+        RobotCommand & command = robot_commands[i];//机器人命令
         if(r.status == Robot::HUNGRY) {
-            vector<Goods> v;
-            for(auto & g : goods_list) {
-                if(inDetection(rx, ry, g.p.x, g.p.y)) {
-                    v.emplace_back(g);
-                }
-            }
-            if(!v.empty()) {
-                d = findOptimal(i, v, pick[i]);
-            } else {
-                d = pixels[rx][ry].direction;
-            }
+           if(steps[i].empty()) {
+               //如果机器人在港口中并且处于饥饿状态同时没有下一步方向
+               //则需要为机器人构造移动栈
+               if(inBerth(rx, ry)) {
+                   //找到最优的货物，构建机器人的移动栈，并将商品从货物列表中删除
+                   int m = berthFindOptimal(getBid(rx, ry), i);
+                   if(m != -1) {
+                       r.target = goods_list[m].p;
+                       goods_list.erase(goods_list.begin() + m);
+                   }
+               } else {
+                   //如果机器人不在港口中,并且已经没有下一步方向
+                   //或者是机器人已经到达了目标位置,则需要捡起货物
+                   if(rx == r.target.x && ry == r.target.y) {
+                       pick[i] = true;
+                   }
+                   //或者是机器人发生了意外情况，此时需要以机器人为中心进行最优化搜索
+                   int m = robotFindOptimal(i);
+                   if(m != -1) {
+                       r.target = goods_list[m].p;
+                       goods_list.erase(goods_list.begin() + m);
+                   }
+               }
+           } else { //如果机器人还有下一步动作，则继续运动
+               d = steps[i].top();steps[i].pop();
+           }
         } else if(r.status == Robot::FULL) {
-            d = pixels[rx][ry].direction;
+            Pixel & pixel = pixels[rx][ry];
+            d = pixel.direction[pixel.closest];
+        } else if(r.status == Robot::DUMMY) {
+            while(!steps[i].empty()) {
+                steps[i].pop();
+            }
         }
+
         command.direction = d;
         directions[i] = d;
-        if(d == LEFT) {
-            next_pos[i] = pos{rx-1, ry};
-        } else if(d == RIGHT) {
-            next_pos[i] = pos{rx+1, ry};
-        } else if(d == UP) {
-            next_pos[i] = pos{rx, ry+1};
-        } else if(d == DOWN){
-            next_pos[i] = pos{rx, ry-1};
-        } else {
-            next_pos[i] = pos{rx, ry};
-        }
+        next_pos[i] = newPos(rx, ry, d);
     }
 
-    int x1, x2, y1, y2;
-    bool flag = false;
-    while(!flag) {
-        for(int i = 0;i < NUM_BOAT;i++) {
-            for(int j = i;j < NUM_ROBOT;j++) {
-                x1 = next_pos[i].x, y1 = next_pos[i].y;
-                x2 = next_pos[j].x, y2 = next_pos[j].y;
-                if(x1 == x2 && y1 == y2) {
+    //此处应该有避障逻辑
 
-                }
-            }
-        }
-        break;
-    }
 
+    //填充指令列表
     for(int i = 0;i < NUM_ROBOT;i++) {
         Robot & r = robots[i];
         RobotCommand & command = robot_commands[i];
         if(r.status == Robot::FULL) {
-            if(pixels[next_pos[i].x][next_pos[i].y].direction == 0) {
+            Pixel & p = pixels[next_pos[i].x][next_pos[i].y];
+            if(p.ch == 'B') {
                 command.action = RobotCommand::PUT_DOWN;
+                int b = getBid(next_pos[i].x, next_pos[i].y);
+                berths[b].num_goods++;
             } else {
                 command.action = RobotCommand::NULL_ACTION;
             }
@@ -255,7 +368,6 @@ void generateRobotAction () {
 
 unsigned char avoid(unsigned char direction, pos p) {
     unsigned char opposite;
-
 }
 
 //执行机器人动作，打印到标准输出
@@ -283,11 +395,84 @@ void executeRobotAction() {
     }
 }
 
-
-//计算轮船动作
-void generateBoatAction() {
-
+// 找到，返回港口编号;找不到，返回-1
+// 找到，返回港口编号;找不到，返回-1
+int find_best_berth(){
+    vector<int> dsts;
+    for(int i = 0;i<NUM_BERTH;i++){
+        if(berths[i].num_loading!=0){
+            continue;
+        }else{
+            dsts.push_back(i);
+        }
+    }
+    int dst = -1;
+    int num_goods_tmp = 0;
+    for(int j = 0; j < dsts.size();j++){
+        if(berths[dsts[j]].num_goods>num_goods_tmp){
+            num_goods_tmp = berths[dsts[j]].num_goods;
+            dst = dsts[j];
+        }
+    }
+    return dst;
 }
+
+void handle_boat(int boat_num){
+    int dst;
+    int bid_tmp;
+    switch (boats[boat_num].sts) {
+        case Boat::status::RUNNING:
+            boat_commands[boat_num] = {
+                    BoatCommand::Command::NULL_ACTION,
+                    boats[boat_num].berth_num
+            };
+            break;
+        case Boat::status::WAIT:
+            // 找到当前空闲并且货物数量最多的港口
+            dst = find_best_berth();
+            if(dst == -1){
+                boat_commands[boat_num] = {
+                        BoatCommand::Command::NULL_ACTION,
+                        boats[boat_num].berth_num
+                };
+            }else{
+                boat_commands[boat_num] = {
+                        BoatCommand::Command::SHIP_ACTION,
+                        dst
+                };
+            }
+            break;
+        case Boat::status::OK:
+            bid_tmp = boats[boat_num].berth_num;
+            if(bid_tmp==-1){
+                // 已经到达虚拟点交货
+                // 寻找没有船只的货物最多的港口
+                dst = find_best_berth();
+                boat_commands[boat_num] = {
+                        BoatCommand::Command::SHIP_ACTION,
+                        dst,
+                };
+                // 将该港口设置为已经有船只
+                berths[dst].num_loading += 1;
+            }else{
+                boat_commands[boat_num] = {
+                        BoatCommand::Command::GO_ACTION,
+                        -1,
+                };
+                berths[bid_tmp].num_loading -= 1;
+            }
+            break;
+        default:
+            break;
+    }
+}
+void generateBoatAction() {
+    for(int i = 0;i<NUM_BOAT;i++){
+        handle_boat(i);
+    }
+}
+
+
 
 
 //执行轮船动作，打印到标准输出
@@ -326,71 +511,73 @@ int main() {
 void mapFloodFill() {
     int x, y, up, down, left, right;
     pos p;
-    stack<pos> stackA, stackB; //A栈 B栈
-    stack<pos> * front = &stackA;
-    stack<pos> * after = &stackB;
-    for(int i = 0;i < NUM_BERTH;i++) {
+    bool colored[SIZE][SIZE][NUM_BERTH];
+    std::fill(&colored[0][0][0], &colored[0][0][0] + SIZE * SIZE * NUM_BERTH, false);
+
+    for(int i = 0;i < NUM_BERTH;++i) {
+        stack<pos> stackA, stackB; //A栈 B栈
+        stack<pos> * front = &stackA;
+        stack<pos> * after = &stackB;
         int b_x = berths[i].x, b_y = berths[i].y;
         for(int j = 0;j < 4;++j) {
             for(int k = 0;k < 4;++k) {
                 int m = b_x+j, n = b_y+k;
-                printf("(%d,%d)\n", m, n);
-                pixels[m][n].dist = 0;
-                pixels[m][n].color = i;
+                pixels[m][n].dist[i] = 0;
+                colored[m][n][i] = true;
                 front->push(pos{m,  n});
             }
         }
-    }
-    while(true) {
-        while(!front->empty()) {
-            p = front->top();front->pop();
-            x = p.x, y = p.y;
-            Pixel & center = pixels[x][y];
-            left = x - 1, right = x + 1, up = y + 1, down = y - 1;
-            Pixel * pixel;
-            if(left >= 0) {
-                pixel = &pixels[left][y];
-                if(pixel->color == NULL_COLOR && pixel->ch == '.') {
-                    pixel->color = center.color;
-                    pixel->direction = RIGHT;
-                    pixel->dist = center.dist + 1;
-                    after->push(pos{left, y});
+        while(true) {
+            while(!front->empty()) {
+                p = front->top();front->pop();
+                x = p.x, y = p.y;
+                Pixel & center = pixels[x][y];
+                left = x - 1, right = x + 1, up = y + 1, down = y - 1;
+                Pixel * pixel;
+                if(left >= 0) {
+                    pixel = &pixels[left][y];
+                    if(!colored[left][y][i] && pixel->ch == '.') {
+                        colored[left][y][i] = true;
+                        pixel->direction[i] = RIGHT;
+                        pixel->dist[i] = center.dist[i] + 1;
+                        after->push(pos{left, y});
+                    }
+                }
+                if(right < SIZE) {
+                    pixel = &pixels[right][y];
+                    if(!colored[right][y][i] && pixel->ch == '.') {
+                        colored[right][y][i] = true;
+                        pixel->direction[i] = LEFT;
+                        pixel->dist[i] = center.dist[i] + 1;
+                        after->push(pos{right, y});
+                    }
+                }
+                if(up < SIZE) {
+                    pixel = &pixels[x][up];
+                    if(!colored[x][up][i] && pixel->ch == '.') {
+                        colored[x][up][i] = true;
+                        pixel->direction[i] = DOWN;
+                        pixel->dist[i] = center.dist[i] + 1;
+                        after->push(pos{x, up});
+                    }
+                }
+                if(down >= 0) {
+                    pixel = &pixels[x][down];
+                    if(!colored[x][down][i] && pixel->ch == '.') {
+                        colored[x][down][i] = true;
+                        pixel->direction[i] = UP;
+                        pixel->dist[i] = center.dist[i] + 1;
+                        after->push(pos{x, down});
+                    }
                 }
             }
-            if(right < SIZE) {
-                pixel = &pixels[right][y];
-                if(pixel->color == NULL_COLOR && pixel->ch == '.') {
-                    pixel->color = center.color;
-                    pixel->direction = LEFT;
-                    pixel->dist = center.dist + 1;
-                    after->push(pos{right, y});
-                }
+            if(after->empty()) {
+                break;
             }
-            if(up < SIZE) {
-                pixel = &pixels[x][up];
-                if(pixel->color == NULL_COLOR && pixel->ch == '.') {
-                    pixel->color = center.color;
-                    pixel->direction = DOWN;
-                    pixel->dist = center.dist + 1;
-                    after->push(pos{x, up});
-                }
-            }
-            if(down >= 0) {
-                pixel = &pixels[x][down];
-                if(pixel->color == NULL_COLOR && pixel->ch == '.') {
-                    pixel->color = center.color;
-                    pixel->direction = DOWN;
-                    pixel->dist = center.dist + 1;
-                    after->push(pos{x, down});
-                }
-            }
+            auto temp = front;
+            front = after;
+            after = temp;
         }
-        if(after->empty()) {
-            break;
-        }
-        auto temp = front;
-        front = after;
-        after = temp;
     }
 }
 
@@ -405,22 +592,52 @@ void initAll() {
             pixels[i][j].ch = ch;
             if(ch == 'A') {
                 robots[r_id].p = {i, j};
+                robots[r_id].status = Robot::HUNGRY;
+                r_id++;
             }
         }
     }
+
     //读取泊位 初始化:泊位
     for(int i = 0;i < NUM_BERTH;++i) {
+        Berth & b = berths[i];
         scanf("%d %d %d %d %d",
-              &berths[i].id,
-              &berths[i].x,
-              &berths[i].y,
-              &berths[i].time,
-              &berths[i].velocity
+              &b.id,
+              &b.x,
+              &b.y,
+              &b.time,
+              &b.velocity
         );
+        b.num_goods = 0;
+        b.num_loading = 0;
+        b.num_waiting = 0;
     }
+
     //读取船   初始化:船
     for(int i = 0;i < NUM_BOAT;++i) {
-        scanf("%d", &boats[i].capacity);
+        Boat & b = boats[i];
+        scanf("%d", &b.capacity);
+        b.sts = Boat::OK;
+        b.berth_num = -1;
+        b.num_goods = 0;
+    }
+
+    mapFloodFill();
+    for(int j = 0;j < SIZE;++j) {
+        for(int i = 0;i < SIZE;++i) {
+            Pixel & p = pixels[i][j];
+            if(p.ch == '.') {
+                int b = 0;
+                int dist = p.dist[0];
+                for(int k = 1;k < NUM_BERTH;++k) {
+                    if(p.dist[k] < dist) {
+                        b = k;
+                        dist = p.dist[k];
+                    }
+                }
+                p.closest = b;
+            }
+        }
     }
 }
 
@@ -496,7 +713,7 @@ void robotFloodFill(int r_id) {
 }
 
 void readFrame() {
-    int money, boat_capacity, id;
+    int money, id;
     scanf("%d%d", &id, &money);
     int num;
     scanf("%d",&num);
@@ -512,49 +729,20 @@ void readFrame() {
     for(int i = 0; i < NUM_ROBOT; i ++){
         int sts;
         int handle;
-        Robot::ROBOT_STATUS last_sts;
-        last_sts = robots[i].status;
         scanf("%d%d%d%d", &handle, &robots[i].p.x, &robots[i].p.y, &sts);
         if (sts == 0){
             robots[i].status = Robot::ROBOT_STATUS::DUMMY;
         }else{
-            if(handle==0){
-                switch (last_sts)
-                {
-                    case Robot::ROBOT_STATUS::INIT:
-                        robots[i].status = Robot::ROBOT_STATUS::HUNGRY;
-                        break;
-                    case Robot::ROBOT_STATUS::HUNGRY:
-                        robots[i].status = Robot::ROBOT_STATUS::GO_GET;
-                        break;
-                    case Robot::ROBOT_STATUS::GO_GET:
-                        break;
-                    case Robot::ROBOT_STATUS::GO_SENT:
-                        robots[i].status = Robot::ROBOT_STATUS::HUNGRY;
-                        break;
-                    case Robot::ROBOT_STATUS::DUMMY:
-                        robots[i].status = Robot::ROBOT_STATUS::INIT;
-                        break;
-                    default:
-                        break;
+            Robot & r = robots[i];
+            if(handle == 0){
+                if(r.status == Robot::FULL) {
+                    r.status = Robot::HUNGRY;
+                } else if(r.status == Robot::DUMMY) {
+                    r.status = Robot::HUNGRY;
                 }
             }else{
-                switch (last_sts)
-                {
-                    case Robot::ROBOT_STATUS::HUNGRY:
-                        robots[i].status = Robot::ROBOT_STATUS::GO_SENT;
-                        break;
-                    case Robot::ROBOT_STATUS::GO_GET:
-                        robots[i].status = Robot::ROBOT_STATUS::GO_SENT;
-                        break;
-                    case Robot::ROBOT_STATUS::GO_SENT:
-                        robots[i].status = Robot::ROBOT_STATUS::GO_SENT;
-                        break;
-                    case Robot::ROBOT_STATUS::DUMMY:
-                        robots[i].status = Robot::ROBOT_STATUS::INIT;
-                        break;
-                    default:
-                        break;
+                if(r.status == Robot::HUNGRY) {
+                    r.status = Robot::FULL;
                 }
             }
         }
@@ -573,5 +761,4 @@ void readFrame() {
         }
         boats[i].berth_num = n;
     }
-
 }

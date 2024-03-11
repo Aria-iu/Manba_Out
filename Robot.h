@@ -5,17 +5,13 @@ class Robot
     /* data */
 public:
     enum ROBOT_STATUS{
-        INIT,
-        GO_GET,
-        GO_SENT,
         HUNGRY,
         DUMMY,
         FULL
     };
     pos p;
-    Goods goods;
+    pos target;
     ROBOT_STATUS status;
-    int b_id;
     /* method */
     Robot() {}
     Robot(int startx,int starty){

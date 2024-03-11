@@ -7,6 +7,7 @@
 #define NUM_BERTH 2
 #define NUM_BOAT  5
 #define NULL_COLOR 100
+#define LIFE_TIME  1500
 
 //detection_distance;
 #define DD 25
@@ -36,9 +37,9 @@ struct pos {
 
 struct Pixel {
     char ch;
-    unsigned char direction;
-    short dist = {888};
-    unsigned char color = NULL_COLOR;
+    unsigned char direction[NUM_BERTH];
+    short dist[NUM_BERTH] = {888};
+    unsigned char closest;
 };
 
 struct Goods {
@@ -55,6 +56,9 @@ struct Berth {
     int y;
     int time;
     int velocity;
+    int num_goods = 0;
+    int num_loading = 0;
+    int num_waiting = 0;
 };
 
 struct Boat {
